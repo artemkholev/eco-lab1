@@ -41,7 +41,7 @@ typedef struct IEcoLab1VTbl {
     uint32_t (ECOCALLMETHOD *Release)(/* in */ IEcoLab1Ptr_t me);
 
     /* IEcoLab1 */
-    int16_t (ECOCALLMETHOD *MyFunction)(/* in */ IEcoLab1Ptr_t me, /* in */ char_t* Name, /* out */ char_t** CopyName);
+    int16_t (ECOCALLMETHOD *ShellSort)(/* in */ IEcoLab1Ptr_t me, void *arrPrt, size_t size, size_t elemSize, int (*comp)(const void *, const void*));
 
 } IEcoLab1VTbl, *IEcoLab1VTblPtr;
 
