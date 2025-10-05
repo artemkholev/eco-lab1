@@ -1,4 +1,4 @@
-﻿/*
+/*
  * <кодировка символов>
  *   Cyrillic (UTF-8 with signature) - Codepage 65001
  * </кодировка символов>
@@ -21,6 +21,8 @@
 #include "IEcoInterfaceBus1.h"
 #include "IEcoInterfaceBus1MemExt.h"
 #include "CEcoLab1.h"
+
+#include <string.h>
 
 /*
  *
@@ -112,7 +114,7 @@ static uint32_t ECOCALLMETHOD CEcoLab1_Release(/* in */ IEcoLab1Ptr_t me) {
 /*
  *
  * <сводка>
- *   Функция MyFunction
+ *   Функция ShellSort
  * </сводка>
  *
  * <описание>
@@ -120,28 +122,45 @@ static uint32_t ECOCALLMETHOD CEcoLab1_Release(/* in */ IEcoLab1Ptr_t me) {
  * </описание>
  *
  */
-static int16_t ECOCALLMETHOD CEcoLab1_MyFunction(/* in */ IEcoLab1Ptr_t me, /* in */ char_t* Name, /* out */ char_t** copyName) {
+static int16_t ECOCALLMETHOD CEcoLab1_ShellSort(/* in */ IEcoLab1Ptr_t me, void *arrPrt, size_t arrSize, size_t elemSize, int (*compare)(const void *, const void *)) {
     CEcoLab1* pCMe = (CEcoLab1*)me;
-    int16_t index = 0;
+	char* tmp;
+	char *arr;
 
     /* Проверка указателей */
-    if (me == 0 || Name == 0 || copyName == 0) {
+    if (me == 0 || arrPrt == 0 || compare == 0) {
         return ERR_ECO_POINTER;
     }
 
-    /* Копирование строки */
-    while(Name[index] != 0) {
-        index++;
+    tmp = (char*)pCMe->m_pIMem->pVTbl->Alloc(pCMe->m_pIMem, elemSize);
+
+    arr = (char *)arrPrt;
+
+    /* Сортировка Шелла */
+    for (ssize_t gap = arrSize / 2; gap > 0; gap /= 2) {
+        for (ssize_t i = gap; i < arrSize; i++) {
+            memcpy(tmp, arr + i * elemSize, elemSize);
+            ssize_t j = i;
+            while (j >= gap && compare(arr + (j - gap) * elemSize, tmp) > 0) {
+                memcpy(arr + j * elemSize, arr + (j - gap) * elemSize, elemSize);
+                j -= gap;
+            }
+            memcpy(arr + j * elemSize, tmp, elemSize);
+        }
     }
-    pCMe->m_Name = (char_t*)pCMe->m_pIMem->pVTbl->Alloc(pCMe->m_pIMem, index + 1);
-    index = 0;
-    while(Name[index] != 0) {
-        pCMe->m_Name[index] = Name[index];
-        index++;
-    }
-    *copyName = pCMe->m_Name;
+
+    pCMe->m_pIMem->pVTbl->Free(pCMe->m_pIMem, tmp);
 
     return ERR_ECO_SUCCESES;
+}
+
+void copy_byte(void *dest, const void *src, size_t size) {
+	size_t i;
+    char *d = (char *)dest;
+    const char *s = (const char *)src;
+    for (i = 0; i < size; ++i) {
+        d[i] = s[i];
+    }
 }
 
 /*
@@ -183,7 +202,7 @@ int16_t ECOCALLMETHOD initCEcoLab1(/*in*/ IEcoLab1Ptr_t me, /* in */ struct IEco
 
     /* Освобождение */
     pIBus->pVTbl->Release(pIBus);
-
+	
     return result;
 }
 
@@ -192,7 +211,7 @@ IEcoLab1VTbl g_x277FC00C35624096AFCFC125B94EEC90VTbl = {
     CEcoLab1_QueryInterface,
     CEcoLab1_AddRef,
     CEcoLab1_Release,
-    CEcoLab1_MyFunction
+    CEcoLab1_ShellSort
 };
 
 /*
@@ -214,7 +233,7 @@ int16_t ECOCALLMETHOD createCEcoLab1(/* in */ IEcoUnknown* pIUnkSystem, /* in */
     IEcoMemoryAllocator1* pIMem = 0;
     CEcoLab1* pCMe = 0;
     UGUID* rcid = (UGUID*)&CID_EcoMemoryManager1;
-
+	
     /* Проверка указателей */
     if (ppIEcoLab1 == 0 || pIUnkSystem == 0) {
         return result;
@@ -231,7 +250,7 @@ int16_t ECOCALLMETHOD createCEcoLab1(/* in */ IEcoUnknown* pIUnkSystem, /* in */
     /* Получение интерфейса для работы с интерфейсной шиной */
     result = pISys->pVTbl->QueryInterface(pISys, &IID_IEcoInterfaceBus1, (void **)&pIBus);
 
-    /* Получение идентификатора компонента для работы с памятью */
+	/* Получение идентификатора компонента для работы с памятью */
     result = pIBus->pVTbl->QueryInterface(pIBus, &IID_IEcoInterfaceBus1MemExt, (void**)&pIMemExt);
     if (result == 0 && pIMemExt != 0) {
         rcid = (UGUID*)pIMemExt->pVTbl->get_Manager(pIMemExt);

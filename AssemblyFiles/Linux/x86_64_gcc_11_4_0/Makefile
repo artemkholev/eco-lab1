@@ -25,7 +25,10 @@ endif
 # source files.
 SRC = \
 ../../../SourceFiles/CEcoLab1.c \
-../../../SourceFiles/CEcoLab1Factory.c
+../../../SourceFiles/CEcoLab1Factory.c \
+../../../UnitTestFiles/SourceFiles/EcoLab1_Generators.c \
+../../../UnitTestFiles/SourceFiles/EcoLab1_Utils.c \
+../../../UnitTestFiles/SourceFiles/EcoLab1_Test.c
 
 # include directories
 INCLUDES = \
@@ -33,7 +36,9 @@ INCLUDES = \
 -I ../../../SharedFiles \
 -I $(ECO_FRAMEWORK)/Eco.Core1/SharedFiles \
 -I $(ECO_FRAMEWORK)/Eco.InterfaceBus1/SharedFiles \
--I $(ECO_FRAMEWORK)/Eco.MemoryManager1/SharedFiles
+-I $(ECO_FRAMEWORK)/Eco.MemoryManager1/SharedFiles \
+-I ../../../UnitTestFiles/SourceFiles \
+-I ../../../UnitTestFiles/HeaderFiles
 
 OBJ = $(SRC:.c=.o)
 

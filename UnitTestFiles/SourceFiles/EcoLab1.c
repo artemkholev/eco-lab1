@@ -25,6 +25,13 @@
 #include "IdEcoFileSystemManagement1.h"
 #include "IdEcoLab1.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "EcoLab1_Utils.h"
+#include "EcoLab1_Test.h"
+#include "EcoLab1_Generators.h"
+
 /*
  *
  * <сводка>
@@ -45,11 +52,11 @@ int16_t EcoMain(IEcoUnknown* pIUnk) {
     /* Указатель на интерфейс работы с памятью */
     IEcoMemoryAllocator1* pIMem = 0;
     char_t* name = 0;
-    char_t* copyName = 0;
     /* Указатель на тестируемый интерфейс */
     IEcoLab1* pIEcoLab1 = 0;
+    int arraySizes[] = {80000, 90000, 100000, 200000, 300000, 400000};
 
-    /* Проверка и создание системного интрефейса */
+      /* Проверка и создание системного интрефейса */
     if (pISys == 0) {
         result = pIUnk->pVTbl->QueryInterface(pIUnk, &GID_IEcoSystem, (void **)&pISys);
         if (result != 0 && pISys == 0) {
@@ -90,16 +97,36 @@ int16_t EcoMain(IEcoUnknown* pIUnk) {
 
     /* Получение тестируемого интерфейса */
     result = pIBus->pVTbl->QueryComponent(pIBus, &CID_EcoLab1, 0, &IID_IEcoLab1, (void**) &pIEcoLab1);
-    if (result != 0 || pIEcoLab1 == 0) {
+        if (result != 0 || pIEcoLab1 == 0) {
         /* Освобождение интерфейсов в случае ошибки */
         goto Release;
     }
 
+    printf("Testing Shell sort vs stdlib qsort. Results: output.csv\n");
 
-    result = pIEcoLab1->pVTbl->MyFunction(pIEcoLab1, name, &copyName);
+    FILE *resultFile = fopen("output.csv", "w");
+    if (!resultFile) {
+        perror("Cannot open output.csv");
+        return -1;
+    }
+    fprintf(resultFile, "sort,type,size,time\n");
 
+       for (size_t i = 0; i < sizeof(arraySizes)/sizeof(arraySizes[0]); i++) {
+        testSorting(pIEcoLab1, pIMem, resultFile, arraySizes[i],
+                    sizeof(int), "int", generateInts, printIntArray, compInts);
 
-    /* Освлбождение блока памяти */
+        testSorting(pIEcoLab1, pIMem, resultFile, arraySizes[i],
+                    sizeof(float), "float", generateFloats, printFloatArray, compFloats);
+
+        testSorting(pIEcoLab1, pIMem, resultFile, arraySizes[i],
+                    sizeof(double), "double", generateDoubles, printDoubleArray, compDoubles);
+
+        testSorting(pIEcoLab1, pIMem, resultFile, arraySizes[i],
+                    sizeof(char*), "string", generateStrings, printStringArray, compStrings);
+    }
+
+    fclose(resultFile);
+
     pIMem->pVTbl->Free(pIMem, name);
 
 Release:
