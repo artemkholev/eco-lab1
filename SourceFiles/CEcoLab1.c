@@ -22,8 +22,6 @@
 #include "IEcoInterfaceBus1MemExt.h"
 #include "CEcoLab1.h"
 
-#include <string.h>
-
 /*
  *
  * <сводка>
@@ -111,6 +109,14 @@ static uint32_t ECOCALLMETHOD CEcoLab1_Release(/* in */ IEcoLab1Ptr_t me) {
     return pCMe->m_cRef;
 }
 
+static void copy_byte(void* dest, const void* src, size_t n) {
+    char* d = (char*)dest;
+    const char* s = (const char*)src;
+    for (size_t i = 0; i < n; i++) {
+        d[i] = s[i];
+    }
+}
+
 /*
  *
  * <сводка>
@@ -139,28 +145,19 @@ static int16_t ECOCALLMETHOD CEcoLab1_ShellSort(/* in */ IEcoLab1Ptr_t me, void 
     /* Сортировка Шелла */
     for (ssize_t gap = arrSize / 2; gap > 0; gap /= 2) {
         for (ssize_t i = gap; i < arrSize; i++) {
-            memcpy(tmp, arr + i * elemSize, elemSize);
+            copy_byte(tmp, arr + i * elemSize, elemSize);
             ssize_t j = i;
             while (j >= gap && compare(arr + (j - gap) * elemSize, tmp) > 0) {
-                memcpy(arr + j * elemSize, arr + (j - gap) * elemSize, elemSize);
+                copy_byte(arr + j * elemSize, arr + (j - gap) * elemSize, elemSize);
                 j -= gap;
             }
-            memcpy(arr + j * elemSize, tmp, elemSize);
+            copy_byte(arr + j * elemSize, tmp, elemSize);
         }
     }
 
     pCMe->m_pIMem->pVTbl->Free(pCMe->m_pIMem, tmp);
 
     return ERR_ECO_SUCCESES;
-}
-
-void copy_byte(void *dest, const void *src, size_t size) {
-	size_t i;
-    char *d = (char *)dest;
-    const char *s = (const char *)src;
-    for (i = 0; i < size; ++i) {
-        d[i] = s[i];
-    }
 }
 
 /*
@@ -197,8 +194,6 @@ int16_t ECOCALLMETHOD initCEcoLab1(/*in*/ IEcoLab1Ptr_t me, /* in */ struct IEco
 
     /* Сохранение указателя на системный интерфейс */
     pCMe->m_pISys = (IEcoSystem1*)pIUnkSystem;
-
-
 
     /* Освобождение */
     pIBus->pVTbl->Release(pIBus);
