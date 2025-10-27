@@ -38,7 +38,12 @@ INCLUDES = \
 -I $(ECO_FRAMEWORK)/Eco.InterfaceBus1/SharedFiles \
 -I $(ECO_FRAMEWORK)/Eco.MemoryManager1/SharedFiles \
 -I ../../../UnitTestFiles/SourceFiles \
--I ../../../UnitTestFiles/HeaderFiles
+-I ../../../UnitTestFiles/HeaderFiles \
+-I ../../../EcoCalculator/Eco.CalculatorA/SharedFiles \
+-I ../../../EcoCalculator/Eco.CalculatorB/SharedFiles \
+-I ../../../EcoCalculator/Eco.CalculatorC/SharedFiles \
+-I ../../../EcoCalculator/Eco.CalculatorD/SharedFiles \
+-I ../../../EcoCalculator/Eco.CalculatorE/SharedFiles
 
 OBJ = $(SRC:.c=.o)
 

@@ -31,18 +31,21 @@
 static const UGUID IID_IEcoLab1 = {0x01, 0x10, {0x27, 0x7F, 0xC0, 0x0C, 0x35, 0x62, 0x40, 0x96, 0xAF, 0xCF, 0xC1, 0x25, 0xB9, 0x4E, 0xEC, 0x90}};
 #endif /* __IID_IEcoLab1 */
 
-typedef struct IEcoLab1* IEcoLab1Ptr_t;
+typedef struct IEcoLab1 IEcoLab1;
 
 typedef struct IEcoLab1VTbl {
 
     /* IEcoUnknown */
-    int16_t (ECOCALLMETHOD *QueryInterface)(/* in */ IEcoLab1Ptr_t me, /* in */ const UGUID* riid, /* out */ voidptr_t* ppv);
-    uint32_t (ECOCALLMETHOD *AddRef)(/* in */ IEcoLab1Ptr_t me);
-    uint32_t (ECOCALLMETHOD *Release)(/* in */ IEcoLab1Ptr_t me);
+    int16_t (ECOCALLMETHOD *QueryInterface)(/* in */ struct IEcoLab1* me, /* in */ const UGUID* riid, /* out */ voidptr_t* ppv);
+    uint32_t (ECOCALLMETHOD *AddRef)(/* in */ struct IEcoLab1* me);
+    uint32_t (ECOCALLMETHOD *Release)(/* in */ struct IEcoLab1* me);
 
     /* IEcoLab1 */
-    int16_t (ECOCALLMETHOD *ShellSort)(/* in */ IEcoLab1Ptr_t me, void *arrPrt, size_t size, size_t elemSize, int (*comp)(const void *, const void*));
-
+    int16_t (ECOCALLMETHOD *ShellSort)(/* in */ struct IEcoLab1* me, void *arrPrt, size_t size, size_t elemSize, int (*comp)(const void *, const void*));
+    int16_t (ECOCALLMETHOD *Addition)(/* in */ struct IEcoLab1* me, /* in */ int16_t a, /* in */ int16_t b);
+    int16_t (ECOCALLMETHOD *Subtraction)(/* in */ struct IEcoLab1* me, /* in */ int16_t a, /* in */ int16_t b);
+    int16_t (ECOCALLMETHOD *Multiplication)(/* in */ struct IEcoLab1* me, /* in */ int16_t a, /* in */ int16_t b);
+    int16_t (ECOCALLMETHOD *Division)(/* in */ struct IEcoLab1* me, /* in */ int16_t a, /* in */ int16_t b);
 } IEcoLab1VTbl, *IEcoLab1VTblPtr;
 
 interface IEcoLab1 {

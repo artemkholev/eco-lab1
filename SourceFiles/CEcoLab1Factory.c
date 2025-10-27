@@ -153,7 +153,7 @@ static int16_t ECOCALLMETHOD CEcoLab1Factory_Alloc(/* in */ struct IEcoComponent
 
     /* Инициализация компонента */
     result = me->pVTbl->Init(me, pISystem, pIUnk);
-
+	
     /* Получение указателя на интерфейс */
     result = pIUnk->pVTbl->QueryInterface(pIUnk, riid, ppv);
 
