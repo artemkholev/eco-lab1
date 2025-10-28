@@ -8,7 +8,7 @@ SRC = \
 INCLUDES = \
 -I ../../../HeaderFiles \
 -I ../../../SharedFiles \
--I ../../../../../Lesson03/Eco.CalculatorB/SharedFiles \
+-I ../../../../Eco.CalculatorB/SharedFiles \
 -I $(ECO_FRAMEWORK)/Eco.Core1/SharedFiles \
 -I $(ECO_FRAMEWORK)/Eco.InterfaceBus1/SharedFiles \
 -I $(ECO_FRAMEWORK)/Eco.MemoryManager1/SharedFiles

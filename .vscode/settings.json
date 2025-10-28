@@ -2,6 +2,7 @@
     "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
         "cecolab1.h": "c",
-        "iecolab1.h": "c"
+        "iecolab1.h": "c",
+        "iecocalculatory.h": "c"
     }
 }

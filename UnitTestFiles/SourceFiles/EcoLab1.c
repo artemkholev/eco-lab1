@@ -29,6 +29,7 @@
 #include "IEcoCalculatorX.h"
 #include "IdEcoCalculatorA.h"
 #include "IdEcoCalculatorB.h"
+#include "IdEcoCalculatorC.h"
 #include "IdEcoCalculatorD.h"
 #include "IdEcoCalculatorE.h"
 
@@ -61,7 +62,7 @@ int16_t EcoMain(IEcoUnknown* pIUnk) {
     char_t* name = 0;
     /* Указатель на тестируемый интерфейс */
     IEcoLab1* pIEcoLab1 = 0;
-    IEcoCalculatorY* pIY = 0;
+	IEcoCalculatorY* pIY = 0;
     IEcoCalculatorX* pIX = 0;
 	int arraySizes[] = {80000, 90000, 100000, 200000, 300000, 400000};
 
@@ -133,55 +134,69 @@ int16_t EcoMain(IEcoUnknown* pIUnk) {
         testSorting(pIEcoLab1, pIMem, resultFile, arraySizes[i],
                     sizeof(char*), "string", generateStrings, printStringArray, compStrings);
     }
-	
-	/* запрос интерфейса IEcoCalculatorY через IEcoLab1 */
+
+	 /* запрос интерфейса IEcoCalculatorY через IEcoLab1 */
     result = pIEcoLab1->pVTbl->QueryInterface(pIEcoLab1, &IID_IEcoCalculatorY, (void **) &pIY);
     if (result != 0 || pIY == 0) {
+        fprintf(stderr, "[DEBUG] QI Y from Lab1 failed: %d\n", result);
         goto Release;
     }
-
-	printf("IEcoCalculatorY test:\n");
-	printf("Multiplication test 15 * 10 = %d\n", pIY->pVTbl->Multiplication(pIY, 15, 10));
-    printf("Division test 15 / 10 = %d\n", pIY->pVTbl->Division(pIY, 15, 10));
-    pIY->pVTbl->Release(pIY);
 
     /* запрос интерфейса IEcoCalculatorX через IEcoLab1 */
     result = pIEcoLab1->pVTbl->QueryInterface(pIEcoLab1, &IID_IEcoCalculatorX, (void **) &pIX);
     if (result != 0 || pIX == 0) {
+        fprintf(stderr, "[DEBUG] QI X from Lab1 failed: %d\n", result);
         goto Release;
     }
 
-	printf("\nIEcoCalculatorX test:\n");
-	printf("Addition test 15 + 10 = %d\n", pIX->pVTbl->Addition(pIX, 15, 10));
-    printf("Subtraction test 15 - 10 = %d\n", pIX->pVTbl->Subtraction(pIX, 15, 10));
+	printf("Addition test:\n");
+	printf("23 + 7 = %d\n", pIX->pVTbl->Addition(pIX, 23, 7));
+	printf("Subtraction test:\n");
+	printf("25 - 15 = %d\n", pIX->pVTbl->Subtraction(pIX, 25, 15));
     pIX->pVTbl->Release(pIX);
+    pIX = 0;
+
+	printf("Multiplication test:\n");
+	printf("5 * 5 = %d\n", pIY->pVTbl->Multiplication(pIY, 5, 5));
+	printf("Division test:\n");
+	printf("15 / 3 = %d\n", pIY->pVTbl->Division(pIY, 15, 3));
+    pIY->pVTbl->Release(pIY);
+    pIY = 0;
 
 	printf("\nInterface test:\n");
+    IEcoCalculatorX* pIXLocal = 0;
+    IEcoCalculatorY* pIYLocal = 0;
 
-    result = pIEcoLab1->pVTbl->QueryInterface(pIEcoLab1, &IID_IEcoCalculatorX, (void **) &pIX);
-    if (result == 0) {
-        printf("Query IX from Lab1 - success\n");
-        pIX->pVTbl->Release(pIX);
+    if (pIEcoLab1->pVTbl->QueryInterface(pIEcoLab1, &IID_IEcoCalculatorX, (void **)&pIXLocal) == ERR_ECO_SUCCESES && pIXLocal != 0) {
+        printf("Calling X from Lab1\n");
+        pIXLocal->pVTbl->Release(pIXLocal);
+        pIXLocal = 0;
     }
-    result = pIEcoLab1->pVTbl->QueryInterface(pIEcoLab1, &IID_IEcoCalculatorY, (void **) &pIY);
-    if (result == 0) {
-        printf("Query IY from Lab1 - success\n");
-        pIY->pVTbl->Release(pIY);
-    }
-
-	result = pIY->pVTbl->QueryInterface(pIY, &IID_IEcoCalculatorX, (void **) &pIX);
-    if (result == 0) {
-        printf("Query IX from IY - success\n");
-        pIX->pVTbl->Release(pIX);
+    if (pIEcoLab1->pVTbl->QueryInterface(pIEcoLab1, &IID_IEcoCalculatorY, (void **)&pIYLocal) == ERR_ECO_SUCCESES && pIYLocal != 0) {
+        printf("Calling Y from Lab1\n");
+        pIYLocal->pVTbl->Release(pIYLocal);
+        pIYLocal = 0;
     }
 
-	result = pIX->pVTbl->QueryInterface(pIX, &IID_IEcoCalculatorY, (void **) &pIY);
-    if (result == 0) {
-        printf("Query IY from IX - success\n");
-        pIY->pVTbl->Release(pIY);
+    if (pIEcoLab1->pVTbl->QueryInterface(pIEcoLab1, &IID_IEcoCalculatorY, (void **)&pIYLocal) == ERR_ECO_SUCCESES && pIYLocal != 0) {
+        IEcoCalculatorX* pIXFromIY = 0;
+        if (pIYLocal->pVTbl->QueryInterface(pIYLocal, &IID_IEcoCalculatorX, (void **)&pIXFromIY) == ERR_ECO_SUCCESES && pIXFromIY != 0) {
+            printf("Calling X from Y\n");
+            pIXFromIY->pVTbl->Release(pIXFromIY);
+        }
+        pIYLocal->pVTbl->Release(pIYLocal);
+        pIYLocal = 0;
     }
 
-    pIMem->pVTbl->Free(pIMem, name);
+    if (pIEcoLab1->pVTbl->QueryInterface(pIEcoLab1, &IID_IEcoCalculatorX, (void **)&pIXLocal) == ERR_ECO_SUCCESES && pIXLocal != 0) {
+        IEcoCalculatorY* pIYFromIX = 0;
+        if (pIXLocal->pVTbl->QueryInterface(pIXLocal, &IID_IEcoCalculatorY, (void **)&pIYFromIX) == ERR_ECO_SUCCESES && pIYFromIX != 0) {
+            printf("Calling Y from X\n");
+            pIYFromIX->pVTbl->Release(pIYFromIX);
+        }
+        pIXLocal->pVTbl->Release(pIXLocal);
+        pIXLocal = 0;
+    }
 
 Release:
 
