@@ -32,6 +32,11 @@ INCLUDES = \
 -I ../../../HeaderFiles \
 -I ../../../SharedFiles \
 -I ../../../UnitTestFiles/HeaderFiles \
+-I ../../../EcoCalculator/Eco.CalculatorA/SharedFiles \
+-I ../../../EcoCalculator/Eco.CalculatorB/SharedFiles \
+-I ../../../EcoCalculator/Eco.CalculatorC/SharedFiles \
+-I ../../../EcoCalculator/Eco.CalculatorD/SharedFiles \
+-I ../../../EcoCalculator/Eco.CalculatorE/SharedFiles \
 -I $(ECO_FRAMEWORK)/Eco.Core1/SharedFiles \
 -I $(ECO_FRAMEWORK)/Eco.InterfaceBus1/SharedFiles \
 -I $(ECO_FRAMEWORK)/Eco.FileSystemManagement1/SharedFiles \
@@ -40,6 +45,11 @@ INCLUDES = \
 # libraries directories
 LIB_DIR = \
 -L ../../../BuildFiles/Linux/x86_64/$(CONFIG_TARGET) \
+-L ../../../EcoCalculator/Eco.CalculatorA/BuildFiles/Linux/x86_64/$(CONFIG_TARGET) \
+-L ../../../EcoCalculator/Eco.CalculatorB/BuildFiles/Linux/x86_64/$(CONFIG_TARGET) \
+-L ../../../EcoCalculator/Eco.CalculatorC/BuildFiles/Linux/x86_64/$(CONFIG_TARGET) \
+-L ../../../EcoCalculator/Eco.CalculatorD/BuildFiles/Linux/x86_64/$(CONFIG_TARGET) \
+-L ../../../EcoCalculator/Eco.CalculatorE/BuildFiles/Linux/x86_64/$(CONFIG_TARGET) \
 -L $(ECO_FRAMEWORK)/Eco.InterfaceBus1/BuildFiles/Linux/x86_64/StaticRelease \
 -L $(ECO_FRAMEWORK)/Eco.FileSystemManagement1/BuildFiles/Linux/x86_64/StaticRelease \
 -L $(ECO_FRAMEWORK)/Eco.MemoryManager1/BuildFiles/Linux/x86_64/StaticRelease \
@@ -65,7 +75,7 @@ LIBS_TARGET=
 endif
 
 # library paths
-LIBS = $(LIB_DIR) -lm -lc -lgcc -ldl -l00000000000000000000000053595333 -l00000000000000000000000042757331 -l0000000000000000000000004D656D31 -l00000000000000000000000046534D31 $(LIBS_TARGET)
+LIBS = $(LIB_DIR) -lm -lc -lgcc -ldl -l00000000000000000000000053595333 -l00000000000000000000000042757331 -l0000000000000000000000004D656D31 -l00000000000000000000000046534D31 -lAE202E543CE54550899603BD70C62565 -l4828F6552E4540E78121EBD220DC360E -l3A8E44677E82475CB4A3719ED8397E61 -l872FEF1DE3314B87AD44D1E7C232C2F0 $(LIBS_TARGET)
 
 # compile flags
 LDFLAGS = $(LDFLAGS_TARGET) $(LIBS)

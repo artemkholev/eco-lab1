@@ -34,6 +34,11 @@ SRC = \
 INCLUDES = \
 -I ../../../HeaderFiles \
 -I ../../../SharedFiles \
+-I ../../../EcoCalculator/Eco.CalculatorA/SharedFiles \
+-I ../../../EcoCalculator/Eco.CalculatorB/SharedFiles \
+-I ../../../EcoCalculator/Eco.CalculatorC/SharedFiles \
+-I ../../../EcoCalculator/Eco.CalculatorD/SharedFiles \
+-I ../../../EcoCalculator/Eco.CalculatorE/SharedFiles \
 -I $(ECO_FRAMEWORK)/Eco.Core1/SharedFiles \
 -I $(ECO_FRAMEWORK)/Eco.InterfaceBus1/SharedFiles \
 -I $(ECO_FRAMEWORK)/Eco.MemoryManager1/SharedFiles \
