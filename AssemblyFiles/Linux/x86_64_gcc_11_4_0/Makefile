@@ -26,6 +26,10 @@ endif
 SRC = \
 ../../../SourceFiles/CEcoLab1.c \
 ../../../SourceFiles/CEcoLab1Factory.c \
+../../../SourceFiles/CEcoLab1ConnectionPoint.c \
+../../../SourceFiles/CEcoLab1EnumConnectionPoints.c \
+../../../SourceFiles/CEcoLab1EnumConnections.c \
+../../../UnitTestFiles/SourceFiles/CEcoLab1Sink.c \
 ../../../UnitTestFiles/SourceFiles/EcoLab1_Generators.c \
 ../../../UnitTestFiles/SourceFiles/EcoLab1_Utils.c \
 ../../../UnitTestFiles/SourceFiles/EcoLab1_Test.c
@@ -42,6 +46,7 @@ INCLUDES = \
 -I $(ECO_FRAMEWORK)/Eco.Core1/SharedFiles \
 -I $(ECO_FRAMEWORK)/Eco.InterfaceBus1/SharedFiles \
 -I $(ECO_FRAMEWORK)/Eco.MemoryManager1/SharedFiles \
+-I $(ECO_FRAMEWORK)/Eco.List1/SharedFiles \
 -I ../../../UnitTestFiles/SourceFiles \
 -I ../../../UnitTestFiles/HeaderFiles
 
