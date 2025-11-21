@@ -29,6 +29,9 @@
 #include "IdEcoCalculatorB.h"
 #include "IdEcoCalculatorD.h"
 #include "IdEcoCalculatorE.h"
+#include "IEcoEnumConnections.h"
+#include "IEcoConnectionPointContainer.h"
+#include "CEcoLab1ConnectionPoint.h"
 
 typedef struct CEcoLab1 {
 
@@ -37,8 +40,14 @@ typedef struct CEcoLab1 {
 
 	IEcoCalculatorXVTbl* m_pVTblIEcoCalculatorX;
 	IEcoCalculatorYVTbl* m_pVTblIEcoCalculatorY;
+
+    IEcoConnectionPointContainerVTbl* m_pVTblICPC;
+
     IEcoCalculatorX* m_pIEcoCalculatorX;
     IEcoCalculatorY* m_pIEcoCalculatorY;
+
+    CEcoLab1ConnectionPoint* m_pISinkCP;
+
     IEcoUnknown* m_pInnerUnknown;
 
 

@@ -24,6 +24,7 @@
 #include "IdEcoInterfaceBus1.h"
 #include "IdEcoFileSystemManagement1.h"
 #include "IdEcoLab1.h"
+#include "IdEcoList1.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,6 +39,17 @@
 #include "IdEcoCalculatorE.h"
 #include "IEcoCalculatorX.h"
 #include "IEcoCalculatorY.h"
+#include "CEcoLab1Sink.h"
+#include "IEcoConnectionPointContainer.h"
+
+/*
+ * <сводка>
+ *   Comparator для целых чисел
+ * </сводка>
+ */
+int IntComparator(const void *a, const void *b) {
+    return (*(int16_t*)a - *(int16_t*)b);
+}
 
 /*
  *
@@ -69,6 +81,14 @@ int16_t EcoMain(IEcoUnknown* pIUnk) {
     /* Результат математических операций */
     int32_t comp_result = 0;
 
+    /* Connection Points */
+    IEcoConnectionPointContainer* pICPC = 0;
+    IEcoConnectionPoint* pICP = 0;
+    IEcoLab1Events* pIEcoLab1Sink = 0;
+    CEcoLab1Sink* pSink = 0;
+    IEcoUnknown* pISinkUnk = 0;
+    uint32_t cAdvise = 0;
+
     /* Проверка и создание системного интрефейса */
     if (pISys == 0) {
         result = pIUnk->pVTbl->QueryInterface(pIUnk, &GID_IEcoSystem, (void**)&pISys);
@@ -91,6 +111,14 @@ int16_t EcoMain(IEcoUnknown* pIUnk) {
         /* Освобождение в случае ошибки */
         goto Release;
     }
+
+    /* Регистрация статического компонента для работы со списком */
+    result = pIBus->pVTbl->RegisterComponent(pIBus, &CID_EcoList1, (IEcoUnknown*)GetIEcoComponentFactoryPtr_53884AFC93C448ECAA929C8D3A562281);
+    if (result != 0) {
+        /* Освобождение в случае ошибки */
+        goto Release;
+    }
+
     result = pIBus->pVTbl->RegisterComponent(pIBus, &CID_EcoCalculatorB, (IEcoUnknown*)GetIEcoComponentFactoryPtr_AE202E543CE54550899603BD70C62565);
     if (result != 0) {
         /* Освобождение в случае ошибки */
@@ -127,6 +155,96 @@ int16_t EcoMain(IEcoUnknown* pIUnk) {
         /* Освобождение интерфейсов в случае ошибки */
         goto Release;
     }
+
+    /* ДЕМОНСТРАЦИЯ CONNECTION POINTS */
+    printf("CONNECTION POINTS & EVENTS\n");
+    /* Проверка поддержки подключений обратного интерфейса */
+    result = pIEcoLab1->pVTbl->QueryInterface(pIEcoLab1, &IID_IEcoConnectionPointContainer, (void **)&pICPC);
+    if (result != 0 || pICPC == 0) {
+        printf("ERROR: Component does not support IEcoConnectionPointContainer\n");
+        goto Release;
+    }
+    printf("Component supports IEcoConnectionPointContainer\n");
+
+    /* Запрос на получение интерфейса точки подключения */
+    result = pICPC->pVTbl->FindConnectionPoint(pICPC, &IID_IEcoLab1Events, &pICP);
+    if (result != 0 || pICP == 0) {
+        printf("ERROR: Connection point for IEcoLab1Events not found\n");
+        pICPC->pVTbl->Release(pICPC);
+        goto Release;
+    }
+    printf("Found connection point for IEcoLab1Events\n");
+
+    /* Освобождение интерфейса */
+    pICPC->pVTbl->Release(pICPC);
+
+    /* Создание экземпляра обратного интерфейса (Sink) */
+    result = createCEcoLab1Sink(pIMem, &pIEcoLab1Sink);
+    if (result != 0 || pIEcoLab1Sink == 0) {
+        printf("ERROR: Failed to create event sink\n");
+        pICP->pVTbl->Release(pICP);
+        goto Release;
+    }
+    printf("Created event sink (CEcoLab1Sink)\n");
+
+    /* Получение интерфейса IEcoUnknown для подключения */
+    result = pIEcoLab1Sink->pVTbl->QueryInterface(pIEcoLab1Sink, &IID_IEcoUnknown, (void **)&pISinkUnk);
+    if (result != 0 || pISinkUnk == 0) {
+        printf("ERROR: Failed to get IEcoUnknown from sink\n");
+        pIEcoLab1Sink->pVTbl->Release(pIEcoLab1Sink);
+        pICP->pVTbl->Release(pICP);
+        goto Release;
+    }
+
+    /* Подключение sink к connection point */
+    result = pICP->pVTbl->Advise(pICP, pISinkUnk, &cAdvise);
+    if (result != 0) {
+        printf("ERROR: Failed to advise sink\n");
+        pISinkUnk->pVTbl->Release(pISinkUnk);
+        pIEcoLab1Sink->pVTbl->Release(pIEcoLab1Sink);
+        pICP->pVTbl->Release(pICP);
+        goto Release;
+    }
+    printf("Sink connected to component (cookie: %u)\n", cAdvise);
+
+    /* Освобождение интерфейса */
+    pISinkUnk->pVTbl->Release(pISinkUnk);
+
+    printf("TESTING SHELL SORT WITH EVENT CALLBACKS\n");
+
+    /* Тестовый массив для демонстрации событий */
+    {
+        size_t test_n = 15;
+        int16_t* test_array = (int16_t*)pIMem->pVTbl->Alloc(pIMem, test_n * sizeof(int16_t));
+        size_t i;
+
+        /* Заполнение случайными числами */
+        srand(time(NULL));
+        for (i = 0; i < test_n; i++) {
+            test_array[i] = rand() % 100;
+        }
+
+        /* Вызов сортировки - события будут вызваны автоматически */
+        result = pIEcoLab1->pVTbl->ShellSort(pIEcoLab1, test_array, test_n, sizeof(int16_t), IntComparator);
+
+        pIMem->pVTbl->Free(pIMem, test_array);
+    }
+
+    printf("---------------------------------------------------------------\n");
+    printf("\n");
+
+    /* Отключение sink от connection point */
+    if (pIEcoLab1Sink != 0) {
+        result = pICP->pVTbl->Unadvise(pICP, cAdvise);
+        if (result == 0) {
+            printf("Sink disconnected successfully\n");
+        }
+        pIEcoLab1Sink->pVTbl->Release(pIEcoLab1Sink);
+        pICP->pVTbl->Release(pICP);
+    }
+
+
+    printf("PERFORMANCE TESTING (without event callbacks)\n");
 
     printf("Testing Shell sort vs stdlib qsort. Results: output.csv\n");
 

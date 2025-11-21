@@ -1,4 +1,4 @@
-﻿/*
+/*
  * <кодировка символов>
  *   Cyrillic (UTF-8 with signature) - Codepage 65001
  * </кодировка символов>
@@ -19,6 +19,15 @@
 
 #include "CEcoLab1Sink.h"
 #include "IEcoConnectionPointContainer.h"
+#include <stdio.h>
+#include <unistd.h>
+
+/* ANSI Color Codes for Linux */
+#define ANSI_COLOR_RED_BG     "\x1b[41m"
+#define ANSI_COLOR_GREEN_BG   "\x1b[42m"
+#define ANSI_COLOR_BLUE_BG    "\x1b[44m"
+#define ANSI_COLOR_BRIGHT     "\x1b[1m"
+#define ANSI_COLOR_RESET      "\x1b[0m"
 
 /*
  *
@@ -102,25 +111,131 @@ uint32_t ECOCALLMETHOD CEcoLab1Sink_Release(/* in */ struct IEcoLab1Events* me) 
 /*
  *
  * <сводка>
- *   Функция OnMyCallback
+ *   Вспомогательные функции для вывода массивов
+ * </сводка>
+ *
+ */
+void CEcoLab1Sink_printBeforeIntArray(const void *array, size_t n) {
+    int16_t* arr = (int16_t*)array;
+    size_t i;
+
+    printf(ANSI_COLOR_RED_BG ANSI_COLOR_BRIGHT);
+    for (i = 0; i < n; ++i) {
+        printf("%d ", arr[i]);
+    }
+    printf(ANSI_COLOR_RESET);
+    printf("\n");
+}
+
+void CEcoLab1Sink_printIntShellSortStep(const void *array, size_t count, size_t gap, size_t current_index) {
+    int16_t* arr = (int16_t*)array;
+    size_t i;
+
+    printf(ANSI_COLOR_BLUE_BG);
+    printf("Gap=%zu, Index=%zu: ", gap, current_index);
+    for (i = 0; i < count; ++i) {
+        if (i == current_index) {
+            printf(ANSI_COLOR_RESET ANSI_COLOR_BRIGHT "[%d] " ANSI_COLOR_BLUE_BG, arr[i]);
+        } else {
+            printf("%d ", arr[i]);
+        }
+    }
+    printf(ANSI_COLOR_RESET);
+    printf("\n");
+}
+
+void CEcoLab1Sink_printAfterIntArray(const void *array, size_t n) {
+    int16_t* arr = (int16_t*)array;
+    size_t i;
+
+    printf(ANSI_COLOR_GREEN_BG ANSI_COLOR_BRIGHT);
+    for (i = 0; i < n; ++i) {
+        printf("%d ", arr[i]);
+    }
+    printf(ANSI_COLOR_RESET);
+    printf("\n");
+}
+
+/*
+ *
+ * <сводка>
+ *   Функция OnBeforeShellSort
  * </сводка>
  *
  * <описание>
- *   Функция обратного вызова
+ *   Функция обратного вызова перед началом сортировки
  * </описание>
  *
  */
-int16_t ECOCALLMETHOD CEcoLab1Sink_OnMyCallback(/* in */ struct IEcoLab1Events* me, /* in */ char_t* Name) {
+int16_t ECOCALLMETHOD CEcoLab1Sink_OnBeforeShellSort(/* in */ struct IEcoLab1Events* me, /* in */ const void *array, size_t count) {
     CEcoLab1Sink* pCMe = (CEcoLab1Sink*)me;
 
     if (me == 0 ) {
         return -1;
     }
 
+    printf("\n=== Event: OnBeforeShellSort ===\n");
+    printf("Array before sorting (%zu elements): ", count);
+    CEcoLab1Sink_printBeforeIntArray(array, count);
+
+    usleep(500000); /* 500ms delay */
 
     return 0;
 }
 
+/*
+ *
+ * <сводка>
+ *   Функция ShellSortStep
+ * </сводка>
+ *
+ * <описание>
+ *   Функция обратного вызова для каждого шага сортировки Shell sort
+ * </описание>
+ *
+ */
+int16_t ECOCALLMETHOD CEcoLab1Sink_ShellSortStep(struct IEcoLab1Events* me, const void *array, size_t count, size_t gap, size_t current_index) {
+    CEcoLab1Sink* pCMe = (CEcoLab1Sink*)me;
+
+    if (me == 0 ) {
+        return -1;
+    }
+
+    printf("=== Event: ShellSortStep ===\n");
+    CEcoLab1Sink_printIntShellSortStep(array, count, gap, current_index);
+
+    usleep(100000); /* 100ms delay */
+
+    return 0;
+}
+
+/*
+ *
+ * <сводка>
+ *   Функция OnAfterShellSort
+ * </сводка>
+ *
+ * <описание>
+ *   Функция обратного вызова после завершения сортировки
+ * </описание>
+ *
+ */
+int16_t ECOCALLMETHOD CEcoLab1Sink_OnAfterShellSort(struct IEcoLab1Events* me, const void *array, size_t count) {
+    CEcoLab1Sink* pCMe = (CEcoLab1Sink*)me;
+
+    if (me == 0 ) {
+        return -1;
+    }
+
+    printf("=== Event: OnAfterShellSort ===\n");
+    printf("Array after sorting (%zu elements): ", count);
+    CEcoLab1Sink_printAfterIntArray(array, count);
+    printf("\n");
+
+    usleep(500000); /* 500ms delay */
+
+    return 0;
+}
 
 /*
  *
@@ -129,7 +244,7 @@ int16_t ECOCALLMETHOD CEcoLab1Sink_OnMyCallback(/* in */ struct IEcoLab1Events* 
  * </сводка>
  *
  * <описание>
- *   Функция
+ *   Функция подключения приемника к источнику событий
  * </описание>
  *
  */
@@ -162,7 +277,7 @@ int16_t ECOCALLMETHOD CEcoLab1Sink_Advise(/* in */ struct CEcoLab1Sink* me, /* i
  * </сводка>
  *
  * <описание>
- *   Функция
+ *   Функция отключения приемника от источника событий
  * </описание>
  *
  */
@@ -192,7 +307,9 @@ IEcoLab1VTblEvents g_x2D2E3B9214F248A6A09ECB494B59C795VTblEvents = {
     CEcoLab1Sink_QueryInterface,
     CEcoLab1Sink_AddRef,
     CEcoLab1Sink_Release,
-    CEcoLab1Sink_OnMyCallback
+    CEcoLab1Sink_OnBeforeShellSort,
+    CEcoLab1Sink_OnAfterShellSort,
+    CEcoLab1Sink_ShellSortStep
 };
 
 /*
@@ -225,8 +342,15 @@ int16_t ECOCALLMETHOD createCEcoLab1Sink(/* in */ IEcoMemoryAllocator1* pIMem, /
     /* Установка счетчика ссылок на компонент */
     pCMe->m_cRef = 1;
 
-    /* Создание таблицы функций интерфейса IEcoP2PEvents */
+    /* Инициализация cookie */
+    pCMe->m_cCookie = 0;
+
+    /* Создание таблицы функций интерфейса IEcoLab1Events */
     pCMe->m_pVTblIEcoLab1Events = &g_x2D2E3B9214F248A6A09ECB494B59C795VTblEvents;
+
+    /* Установка вспомогательных функций */
+    pCMe->Advise = CEcoLab1Sink_Advise;
+    pCMe->Unadvise = CEcoLab1Sink_Unadvise;
 
     *ppIEcoLab1Events = (IEcoLab1Events*)pCMe;
 
